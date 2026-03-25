@@ -14,7 +14,7 @@ export default async function Page() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      page_size: 9,
+      page_size: 18, // Aumentamos para buscar mais posts e preencher a aba de Reels!
       sorts: [{ property: 'Data de Publicação', direction: 'descending' }],
     }),
   });
@@ -31,12 +31,20 @@ export default async function Page() {
 
   const data = await res.json();
   
-  // ATUALIZAÇÃO: Agora ele pega TODAS as imagens anexadas no Notion para criar o Carrossel
+  // ATUALIZAÇÃO: O código agora detecta se o arquivo é um vídeo (.mp4, .mov, etc)
   const posts = data.results.map((post) => {
     const files = post.properties['Imagem']?.files || [];
-    const imageUrls = files.map((file) => file.type === 'external' ? file.external.url : file.file?.url).filter(Boolean);
+    
+    const mediaFiles = files.map((file) => {
+      const url = file.type === 'external' ? file.external.url : file.file?.url;
+      const name = (file.name || '').toLowerCase();
+      // Se o nome do arquivo ou a URL tiver formato de vídeo, ele marca como isVideo = true
+      const isVideo = name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || url.includes('.mp4');
+      return { url, isVideo };
+    }).filter(m => m.url); // Filtra para garantir que tem link
+
     const date = post.properties['Data de Publicação']?.date?.start;
-    return { id: post.id, imageUrls, date };
+    return { id: post.id, mediaFiles, date };
   });
 
   async function updateDatesInNotion(postsToUpdate) {
