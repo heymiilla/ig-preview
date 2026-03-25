@@ -5,22 +5,24 @@ import { useState, useEffect } from 'react';
 // === COMPONENTE DO CABEÇALHO DO PERFIL (CLICOU, ALTEROU) ===
 function ProfileHeader() {
   const defaultProfile = {
-    avatar: 'https://i.postimg.cc/kG83Zk3Z/avatar.png', // Placeholder genérico
-    username: 'yourusername',
-    name: 'Your Display Name',
-    bio: 'Notion systems for your content and small biz backend\n🫶 4000+ templates sold\n👇 NOTION CURES',
-    link: 'https://templatesbygabi.etsy.com',
+    avatar: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=Foto', 
+    username: 'seunome',
+    name: 'Sua Descrição ou Nicho',
+    bio: '✨ Escreva a sua bio aqui\n👇 Clique nos textos para editar',
+    link: 'https://seulink.com',
     highlights: [
-      { title: 'MOOD', img: 'https://i.postimg.cc/Qtx1z3B2/h1.png' },
-      { title: 'LEOPARD', img: 'https://i.postimg.cc/4xXz9n8Z/h2.png' },
-      { title: 'FASHION', img: 'https://i.postimg.cc/Wb72WnZc/h3.png' }
+      { title: 'Destaque 1', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=1' },
+      { title: 'Destaque 2', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=2' },
+      { title: 'Destaque 3', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=3' }
     ]
   };
 
   const [profile, setProfile] = useState(defaultProfile);
   const [mounted, setMounted] = useState(false);
+  
+  // Controle da nova caixinha de link personalizada (Para driblar o bloqueio do Notion)
+  const [modal, setModal] = useState({ isOpen: false, field: null, index: null, tempUrl: '' });
 
-  // Carrega os dados salvos no navegador do cliente
   useEffect(() => {
     const saved = localStorage.getItem('ig-widget-profile');
     if (saved) {
@@ -38,43 +40,62 @@ function ProfileHeader() {
     saveProfile({ ...profile, [field]: e.target.innerText });
   };
 
-  const handleImageChange = (field, index = null) => {
-    const newUrl = window.prompt("Cole o link direto (URL) da sua nova imagem:");
-    if (!newUrl) return;
+  const openImageModal = (field, index = null) => {
+    setModal({ isOpen: true, field, index, tempUrl: '' });
+  };
 
-    if (index !== null) {
-      const newHighlights = [...profile.highlights];
-      newHighlights[index].img = newUrl;
-      saveProfile({ ...profile, highlights: newHighlights });
-    } else {
-      saveProfile({ ...profile, [field]: newUrl });
+  const saveNewImage = () => {
+    if (modal.tempUrl.trim() !== '') {
+      if (modal.index !== null) {
+        const newHighlights = [...profile.highlights];
+        newHighlights[modal.index].img = modal.tempUrl;
+        saveProfile({ ...profile, highlights: newHighlights });
+      } else {
+        saveProfile({ ...profile, [modal.field]: modal.tempUrl });
+      }
     }
+    setModal({ isOpen: false, field: null, index: null, tempUrl: '' }); // Fecha a caixinha
   };
 
   if (!mounted) return null;
 
   return (
-    <div style={{ marginBottom: '20px' }}>
-      {/* Topo: Foto, Username e Botão */}
+    <div style={{ marginBottom: '20px', position: 'relative' }}>
+      
+      {/* CAIXINHA DE LINK PERSONALIZADA (Aparece ao clicar na foto) */}
+      {modal.isOpen && (
+        <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: '1px solid #e0e0e0' }}>
+          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: '#262626' }}>Cole o link da nova imagem:</p>
+          <input 
+            type="text" 
+            placeholder="https://i.postimg.cc/..."
+            value={modal.tempUrl} 
+            onChange={(e) => setModal({ ...modal, tempUrl: e.target.value })}
+            style={{ width: '100%', padding: '8px', marginBottom: '12px', borderRadius: '4px', border: '1px solid #dbdbdb', fontSize: '12px' }} 
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <button onClick={() => setModal({ isOpen: false, field: null, index: null, tempUrl: '' })} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#efefef', color: '#262626', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Cancelar</button>
+            <button onClick={saveNewImage} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#0095f6', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Salvar</button>
+          </div>
+        </div>
+      )}
+
+      {/* Topo: Foto e Username */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
         <img 
           src={profile.avatar} 
           alt="Avatar" 
-          onClick={() => handleImageChange('avatar')}
+          onClick={() => openImageModal('avatar')}
           style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: '1px solid #eaeaea' }} 
           title="Clique para alterar a foto"
         />
         <div style={{ flexGrow: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontWeight: '700', fontSize: '16px', color: '#262626' }}>@</span>
-              <span 
-                contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('username', e)}
-                style={{ fontWeight: '700', fontSize: '16px', color: '#262626', outline: 'none', borderBottom: '1px dashed transparent', cursor: 'text' }}
-                title="Clique para editar"
-              >{profile.username}</span>
-            </div>
-            <div style={{ color: '#262626', cursor: 'pointer', fontSize: '20px', paddingBottom: '8px' }}>•••</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span 
+              contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('username', e)}
+              style={{ fontWeight: '700', fontSize: '16px', color: '#262626', outline: 'none', borderBottom: '1px dashed transparent', cursor: 'text' }}
+              title="Clique para editar"
+            >{profile.username}</span>
           </div>
           <div 
             contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('name', e)}
@@ -100,7 +121,7 @@ function ProfileHeader() {
         {profile.highlights.map((highlight, idx) => (
           <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
             <div 
-              onClick={() => handleImageChange('highlights', idx)}
+              onClick={() => openImageModal('highlights', idx)}
               style={{ width: '60px', height: '60px', borderRadius: '50%', padding: '2px', border: '1px solid #dbdbdb', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               title="Clique para alterar a capa"
             >
@@ -264,16 +285,14 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
         
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
           
-          {/* NOSSO NOVO CABEÇALHO DO PERFIL EDITÁVEL AQUI! */}
           <ProfileHeader />
 
+          {/* BARRA DE BOTÕES LIMPA (Sem Plan grid e sem os três pontinhos) */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
               {isUpdating ? 'Salvando...' : 'Refresh'}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>Plan grid</div>
-            <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
