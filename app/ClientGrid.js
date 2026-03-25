@@ -8,12 +8,12 @@ function ProfileHeader() {
     avatar: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=Foto', 
     username: 'seunome',
     name: 'Sua Descrição ou Nicho',
-    bio: '✨ Escreva a sua bio aqui\n👇 Clique nos textos para editar',
+    bio: 'escreva aqui a sua bio\ncoloque o seu link\n(personalize como quiser)',
     link: 'https://seulink.com',
     highlights: [
-      { title: 'Destaque 1', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=1' },
-      { title: 'Destaque 2', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=2' },
-      { title: 'Destaque 3', img: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=3' }
+      { title: 'Destaque 1', img: 'https://placehold.co/150x150/cccccc/ffffff?text=1' },
+      { title: 'Destaque 2', img: 'https://placehold.co/150x150/cccccc/ffffff?text=2' },
+      { title: 'Destaque 3', img: 'https://placehold.co/150x150/cccccc/ffffff?text=3' }
     ]
   };
 
@@ -75,7 +75,8 @@ function ProfileHeader() {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+      {/* paddingRight de 80px evita que o texto passe por baixo do botão de Refresh que vai ficar na direita */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '80px' }}>
         <img 
           src={profile.avatar} 
           alt="Avatar" 
@@ -119,13 +120,14 @@ function ProfileHeader() {
             >
               <img src={highlight.img} alt={highlight.title} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             </div>
+            {/* FONTE SERIFADA ELEGANTE NO DESTAQUE AQUI */}
             <div 
               contentEditable suppressContentEditableWarning onBlur={(e) => {
                 const newHighlights = [...profile.highlights];
                 newHighlights[idx].title = e.target.innerText;
                 saveProfile({ ...profile, highlights: newHighlights });
               }}
-              style={{ fontSize: '11px', color: '#262626', outline: 'none', textAlign: 'center', maxWidth: '64px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text' }}
+              style={{ fontFamily: '"Georgia", "Times New Roman", serif', fontSize: '12px', color: '#262626', outline: 'none', textAlign: 'center', maxWidth: '64px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text' }}
             >{highlight.title}</div>
           </div>
         ))}
@@ -162,7 +164,6 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onClick={() => openPreview(post)} 
       style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
     >
-      {/* RENDERIZA O CANVA NO GRID (Com iframe pointerEvents none para não quebrar o arrastar) */}
       {currentMedia ? (
         currentMedia.isCanva ? (
           <iframe src={currentMedia.url} style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }} />
@@ -175,7 +176,6 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
-      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
       {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
           <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
@@ -186,7 +186,6 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         </div>
       ) : null}
 
-      {/* SETAS DE NAVEGAÇÃO */}
       {hasMultipleMedia && isHovered && (
         <>
           <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
@@ -280,18 +279,20 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
       
       <div style={{ position: 'relative', width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'opacity 0.2s' }}>
         
+        {/* BOTÃO REFRESH NO CANTO SUPERIOR DIREITO */}
+        <div 
+          onClick={handleRefresh} 
+          style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
+          {isUpdating ? 'Salvando...' : 'Refresh'}
+        </div>
+
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
           
           <ProfileHeader />
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-            <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
-              {isUpdating ? 'Salvando...' : 'Refresh'}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px', marginTop: '16px' }}>
             <div onClick={() => setActiveTab('POSTS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'POSTS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
                 <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'POSTS' ? 1 : 0.35 }} />
             </div>
@@ -331,7 +332,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
-              {/* RENDERIZA O CANVA NA TELA CHEIA */}
               {previewPost.mediaFiles[previewImgIdx].isCanva ? (
                  <iframe src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', border: 'none' }} />
               ) : previewPost.mediaFiles[previewImgIdx].isVideo ? (
