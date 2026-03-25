@@ -1,66 +1,63 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
-export default function ClientGrid({ initialPosts, swapDatesInNotion }) {
+export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [posts, setPosts] = useState(initialPosts);
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const router = useRouter();
 
-  // === COLE OS LINKS DIRETOS DAS SUAS IMAGENS PNG AQUI ===
+  // === COLE SEUS LINKS DO POSTIMAGES AQUI ===
   const linkGrid = "https://i.postimg.cc/gJcT83gk/1.png";
   const linkReels = "https://i.postimg.cc/fLWrmY8b/2.png";
   const linkTagged = "https://i.postimg.cc/1tRjwDvt/3.png";
-  // =======================================================
+  // ===========================================
 
-  // Quando você clica e segura a foto
   const handleDragStart = (e, index) => {
     setDraggedIdx(index);
     e.dataTransfer.effectAllowed = "move";
   };
 
-  // Permite que uma foto passe por cima da outra
   const handleDragOver = (e) => {
     e.preventDefault(); 
   };
 
-  // Quando você solta a foto no novo lugar
   const handleDrop = async (e, dropIdx) => {
     e.preventDefault();
     if (draggedIdx === null || draggedIdx === dropIdx) return;
 
-    setIsUpdating(true); // Deixa a tela meio transparente avisando que está carregando
+    setIsUpdating(true); 
 
     const draggedPost = posts[draggedIdx];
     const droppedPost = posts[dropIdx];
 
-    // 1. Truque visual: Troca as fotos na tela imediatamente para você não ficar esperando
+    // 1. Troca as fotos na tela imediatamente
     const newPosts = [...posts];
     newPosts[draggedIdx] = droppedPost;
     newPosts[dropIdx] = draggedPost;
     setPosts(newPosts);
 
-    // 2. Avisa o Notion lá nos bastidores para trocar as datas no seu calendário
-    await swapDatesInNotion(
+    // 2. Avisa o Notion das datas corretas
+    await updateDatesInNotion(
       draggedPost.id, droppedPost.date, 
       droppedPost.id, draggedPost.date
     );
 
     setIsUpdating(false);
-    router.refresh(); 
+  };
+
+  const handleRefresh = () => {
+    setIsUpdating(true);
+    window.location.reload(); // Refresh bruto que funciona 100% das vezes
   };
 
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      {/* O Grid principal. Se estiver atualizando as datas no Notion, ele fica levemente transparente */}
       <div style={{ width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', opacity: isUpdating ? 0.6 : 1, transition: 'opacity 0.2s' }}>
         
-        {/* Botões Superiores */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-          <div onClick={() => router.refresh()} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
+          <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
             {isUpdating ? 'Salvando...' : 'Refresh'}
           </div>
@@ -68,7 +65,6 @@ export default function ClientGrid({ initialPosts, swapDatesInNotion }) {
           <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
         </div>
 
-        {/* Abas com suas Imagens PNG */}
         <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
               <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 1 }} />
@@ -81,12 +77,11 @@ export default function ClientGrid({ initialPosts, swapDatesInNotion }) {
           </div>
         </div>
 
-        {/* Grade de Fotos Interativa */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
           {posts.map((post, index) => (
             <div 
               key={post.id} 
-              draggable // Isso ativa o poder de arrastar!
+              draggable 
               onDragStart={(e) => handleDragStart(e, index)}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, index)}
