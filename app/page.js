@@ -31,21 +31,18 @@ export default async function Page() {
 
   const data = await res.json();
   
+  // ATUALIZAÇÃO: Agora ele pega TODAS as imagens anexadas no Notion para criar o Carrossel
   const posts = data.results.map((post) => {
-    const imageFile = post.properties['Imagem']?.files?.[0];
-    const imageUrl = imageFile?.type === 'external' ? imageFile.external.url : imageFile?.file?.url;
+    const files = post.properties['Imagem']?.files || [];
+    const imageUrls = files.map((file) => file.type === 'external' ? file.external.url : file.file?.url).filter(Boolean);
     const date = post.properties['Data de Publicação']?.date?.start;
-    return { id: post.id, imageUrl, date };
+    return { id: post.id, imageUrls, date };
   });
 
-  // CORREÇÃO: Agora o servidor recebe uma lista de posts e atualiza o calendário em fila (Shift)
   async function updateDatesInNotion(postsToUpdate) {
     'use server';
-    
-    // Processa a fila um por um para não sobrecarregar o Notion
     for (const post of postsToUpdate) {
       if (!post.newDate) continue; 
-      
       await fetch(`https://api.notion.com/v1/pages/${post.id}`, {
         method: 'PATCH',
         headers: {
