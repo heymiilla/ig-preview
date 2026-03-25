@@ -1,15 +1,12 @@
+import ClientGrid from './ClientGrid';
+
 export const revalidate = 0;
 
-export default async function InstagramGrid() {
+export default async function Page() {
   const databaseId = process.env.NOTION_DATABASE_ID;
   const secret = process.env.NOTION_SECRET;
 
-  // === COLE OS LINKS DIRETOS DAS SUAS IMAGENS PNG AQUI ===
-  const linkGrid = "https://i.postimg.cc/8kKVyYSw/Design-sem-nome-(2).png";
-  const linkReels = "https://i.postimg.cc/9MQnZWrV/Design-sem-nome-(3).png";
-  const linkTagged = "https://i.postimg.cc/zXgPn2X3/Design-sem-nome-(4).png";
-  // =======================================================
-
+  // 1. Busca os posts no Notion
   const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
     method: 'POST',
     headers: {
@@ -26,7 +23,7 @@ export default async function InstagramGrid() {
   if (!res.ok) {
     const errorData = await res.text();
     return (
-      <div style={{ padding: '20px', color: 'red', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
+      <div style={{ padding: '20px', color: 'red', fontFamily: 'sans-serif' }}>
         <h3>Erro de Conexão com o Notion:</h3>
         <pre style={{ fontSize: '11px', background: '#fdd', padding: '10px', borderRadius: '5px' }}>{errorData}</pre>
       </div>
@@ -34,63 +31,39 @@ export default async function InstagramGrid() {
   }
 
   const data = await res.json();
-  const posts = data.results;
+  
+  // Limpa o entulho e separa só o que a tela vai precisar (ID, Foto e Data)
+  const posts = data.results.map((post) => {
+    const imageFile = post.properties['Imagem']?.files?.[0];
+    const imageUrl = imageFile?.type === 'external' ? imageFile.external.url : imageFile?.file?.url;
+    const date = post.properties['Data de Publicação']?.date?.start;
+    return { id: post.id, imageUrl, date };
+  });
 
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
-      
-      <div style={{ width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px' }}>
-        
-        {/* Botões Superiores */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', textDecoration: 'none', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
-            Refresh
-          </a>
-          <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
-            Plan grid
-          </div>
-          <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
-        </div>
+  // 2. FUNÇÃO SECRETA DO SERVIDOR: Troca as datas no Notion quando você solta a foto
+  async function swapDatesInNotion(id1, date1, id2, date2) {
+    'use server'; // Essa tag mágica impede que a senha vaze
+    
+    const updatePage = async (pageId, newDate) => {
+      await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${process.env.NOTION_SECRET}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          properties: {
+            'Data de Publicação': { date: { start: newDate } }
+          }
+        })
+      });
+    };
 
-        {/* Abas com as suas Imagens PNG */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
-           
-           {/* Aba Ativa: POSTS */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-              <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 1 }} />
-           </div>
+    // Atualiza as duas páginas no Notion ao mesmo tempo
+    await Promise.all([updatePage(id1, date2), updatePage(id2, date1)]);
+  }
 
-           {/* Aba Inativa: REELS */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-               <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
-           </div>
-
-           {/* Aba Inativa: TAGGED */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-               <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
-           </div>
-        </div>
-
-        {/* Grade de Fotos */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
-          {posts.map((post) => {
-            const imageFile = post.properties['Imagem']?.files?.[0];
-            const imageUrl = imageFile?.type === 'external' ? imageFile.external.url : imageFile?.file?.url;
-
-            return (
-              <div key={post.id} style={{ aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden' }}>
-                {imageUrl ? (
-                  <img src={imageUrl} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '5px' }}>Sem foto</div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-      </div>
-    </div>
-  );
+  // Chama a tela e entrega os posts e a função secreta para ela
+  return <ClientGrid initialPosts={posts} swapDatesInNotion={swapDatesInNotion} />;
 }
