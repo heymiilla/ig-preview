@@ -14,7 +14,7 @@ export default async function Page() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      page_size: 18,
+      page_size: 18, 
       sorts: [{ property: 'Data de Publicação', direction: 'descending' }],
     }),
   });
@@ -31,8 +31,8 @@ export default async function Page() {
 
   const data = await res.json();
   
-  const posts = data.results.map((post) => {
-    // 1. Puxa as mídias do UPLOAD
+  const mappedPosts = data.results.map((post) => {
+    // 1. Puxa as mídias do UPLOAD normal
     const files = post.properties['Imagem']?.files || [];
     const mediaFiles = files.map((file) => {
       const url = file.type === 'external' ? file.external.url : file.file?.url;
@@ -62,6 +62,10 @@ export default async function Page() {
     return { id: post.id, mediaFiles, date };
   });
 
+  // === A LINHA MÁGICA QUE REMOVE POSTS VAZIOS ===
+  const posts = mappedPosts.filter(p => p.mediaFiles && p.mediaFiles.length > 0);
+  // ==============================================
+
   async function updateDatesInNotion(postsToUpdate) {
     'use server';
     for (const post of postsToUpdate) {
@@ -75,7 +79,7 @@ export default async function Page() {
         },
         body: JSON.stringify({
           properties: {
-            'Data de Publicação': { date: { start: post.newDate } }
+            'Data de Publicação': { date: { start: newDate } }
           }
         })
       });
