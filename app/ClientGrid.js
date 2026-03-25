@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-// === COMPONENTE DO CABEÇALHO DO PERFIL (CLICOU, ALTEROU) ===
+// === CABEÇALHO DO PERFIL ===
 function ProfileHeader() {
   const defaultProfile = {
     avatar: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=Foto', 
@@ -19,14 +19,11 @@ function ProfileHeader() {
 
   const [profile, setProfile] = useState(defaultProfile);
   const [mounted, setMounted] = useState(false);
-  
   const [modal, setModal] = useState({ isOpen: false, field: null, index: null, tempUrl: '' });
 
   useEffect(() => {
     const saved = localStorage.getItem('ig-widget-profile');
-    if (saved) {
-      setProfile(JSON.parse(saved));
-    }
+    if (saved) setProfile(JSON.parse(saved));
     setMounted(true);
   }, []);
 
@@ -61,7 +58,6 @@ function ProfileHeader() {
   return (
     <div style={{ marginBottom: '20px', position: 'relative' }}>
       
-      {/* CAIXINHA DE LINK PERSONALIZADA */}
       {modal.isOpen && (
         <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: '1px solid #e0e0e0' }}>
           <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: '#262626' }}>Cole o link da nova imagem:</p>
@@ -79,7 +75,6 @@ function ProfileHeader() {
         </div>
       )}
 
-      {/* Topo: Foto e Username */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
         <img 
           src={profile.avatar} 
@@ -103,7 +98,6 @@ function ProfileHeader() {
         </div>
       </div>
 
-      {/* Bio e Link */}
       <div style={{ marginBottom: '16px' }}>
         <div 
           contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('bio', e)}
@@ -115,7 +109,6 @@ function ProfileHeader() {
         >{profile.link}</div>
       </div>
 
-      {/* Destaques (Highlights) */}
       <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
         {profile.highlights.map((highlight, idx) => (
           <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
@@ -169,9 +162,11 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onClick={() => openPreview(post)} 
       style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
     >
-      {/* Aqui no grid continua 'cover' para o quadradinho ficar perfeito */}
+      {/* RENDERIZA O CANVA NO GRID (Com iframe pointerEvents none para não quebrar o arrastar) */}
       {currentMedia ? (
-        currentMedia.isVideo ? (
+        currentMedia.isCanva ? (
+          <iframe src={currentMedia.url} style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }} />
+        ) : currentMedia.isVideo ? (
           <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} muted playsInline preload="metadata" />
         ) : (
           <img src={currentMedia.url} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
@@ -180,6 +175,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
+      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
       {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
           <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
@@ -190,6 +186,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         </div>
       ) : null}
 
+      {/* SETAS DE NAVEGAÇÃO */}
       {hasMultipleMedia && isHovered && (
         <>
           <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
@@ -332,10 +329,12 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               </div>
             </div>
 
-            {/* FUNDO ESCURO E OBJECT-FIT CONTAIN NA VISUALIZAÇÃO AQUI */}
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
-              {previewPost.mediaFiles[previewImgIdx].isVideo ? (
+              {/* RENDERIZA O CANVA NA TELA CHEIA */}
+              {previewPost.mediaFiles[previewImgIdx].isCanva ? (
+                 <iframe src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', border: 'none' }} />
+              ) : previewPost.mediaFiles[previewImgIdx].isVideo ? (
                  <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay controls playsInline />
               ) : (
                  <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
