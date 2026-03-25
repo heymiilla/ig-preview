@@ -56,21 +56,19 @@ export default async function InstagramGrid() {
           <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
         </div>
 
-        <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #e0e0e0', color: inactiveColor, marginBottom: '2px' }}>
+        {/* Abas de Navegação (Apenas Ícones, Centrados) */}
+        <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', color: inactiveColor, marginBottom: '2px' }}>
            
-           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', color: activeColor, borderTop: '1px solid #262626', textTransform: 'uppercase', letterSpacing: '1px', paddingTop: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" width="18" x="3" y="3"></rect><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="9.015" x2="9.015" y1="3" y2="21"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="14.985" x2="14.985" y1="3" y2="21"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="9.015" y2="9.015"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="14.985" y2="14.985"></line></svg>
-              <span>Posts</span>
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: activeColor, borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" width="18" x="3" y="3"></rect><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="9.015" x2="9.015" y1="3" y2="21"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="14.985" x2="14.985" y1="3" y2="21"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="9.015" y2="9.015"></line><line fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" x1="21" x2="3" y1="14.985" y2="14.985"></line></svg>
            </div>
 
-           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '500', color: inactiveColor, textTransform: 'uppercase', letterSpacing: '1px', paddingTop: '12px', cursor: 'pointer' }}>
-               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="m10 10 5 3-5 3V10Z"/><path d="M2 10a1 1 0 0 1 1-1h1.34a1 1 0 0 0 .7-.3l1.17-1.17A1.5 1.5 0 0 1 7.28 7H16.7a1.5 1.5 0 0 1 1.07.44l1.17 1.17a1 1 0 0 0 .7.3H21a1 1 0 0 1 1 1v4h-4a1 1 0 0 0-1 1h-1a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H5a1 1 0 0 0-1-1H2v-4Z"/></svg>
-               <span>Reels</span>
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: inactiveColor, paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="m10 10 5 3-5 3V10Z"/><path d="M2 10a1 1 0 0 1 1-1h1.34a1 1 0 0 0 .7-.3l1.17-1.17A1.5 1.5 0 0 1 7.28 7H16.7a1.5 1.5 0 0 1 1.07.44l1.17 1.17a1 1 0 0 0 .7.3H21a1 1 0 0 1 1 1v4h-4a1 1 0 0 0-1 1h-1a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H5a1 1 0 0 0-1-1H2v-4Z"/></svg>
            </div>
 
-           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '500', color: inactiveColor, textTransform: 'uppercase', letterSpacing: '1px', paddingTop: '12px', cursor: 'pointer' }}>
-               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M12 20a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M20 20a8 8 0 0 0-16 0"/><circle cx="12" cy="12" r="2"/></svg>
-               <span>Tagged</span>
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: inactiveColor, paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M12 20a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M20 20a8 8 0 0 0-16 0"/><circle cx="12" cy="12" r="2"/></svg>
            </div>
         </div>
 
