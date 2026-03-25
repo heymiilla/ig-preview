@@ -32,7 +32,7 @@ export default async function Page() {
   const data = await res.json();
   
   const posts = data.results.map((post) => {
-    // 1. Puxa as mídias do UPLOAD normal (coluna 'Imagem')
+    // 1. Puxa as mídias do UPLOAD
     const files = post.properties['Imagem']?.files || [];
     const mediaFiles = files.map((file) => {
       const url = file.type === 'external' ? file.external.url : file.file?.url;
@@ -41,17 +41,21 @@ export default async function Page() {
       return { url, isVideo };
     }).filter(m => m.url);
 
-    // 2. Puxa a mídia da coluna EXATA "Link direto"
+    // 2. Puxa a mídia da coluna "Link direto"
     const directLink = post.properties['Link direto']?.url;
     if (directLink) {
       const isVideo = directLink.match(/\.(mp4|mov|webm)$/i) !== null;
       mediaFiles.push({ url: directLink, isVideo }); 
     }
 
-    // 3. Puxa a mídia da coluna EXATA "Canva Link"
+    // 3. MÁGICA DO CANVA: Puxa o link e transforma em formato Embed
     const canvaLink = post.properties['Canva Link']?.url;
     if (canvaLink) {
-      mediaFiles.push({ url: canvaLink, isVideo: false }); 
+      let embedUrl = canvaLink;
+      if (embedUrl.includes('/view') && !embedUrl.includes('embed')) {
+        embedUrl = embedUrl.replace('/view', '/view?embed');
+      }
+      mediaFiles.push({ url: embedUrl, isVideo: false, isCanva: true }); 
     }
 
     const date = post.properties['Data de Publicação']?.date?.start;
