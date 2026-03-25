@@ -38,7 +38,7 @@ export default async function InstagramGrid() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '16px' }}>Grid Preview</h3>
           <a href="/" style={{ fontSize: '12px', background: '#f5f5f5', color: '#333', textDecoration: 'none', padding: '6px 12px', borderRadius: '6px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: 'bold' }}>
-            🔄 Refresh
+            Refresh
           </a>
         </div>
 
