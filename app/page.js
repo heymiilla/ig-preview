@@ -4,7 +4,6 @@ export default async function InstagramGrid() {
   const databaseId = process.env.NOTION_DATABASE_ID;
   const secret = process.env.NOTION_SECRET;
 
-  // Fazendo a comunicação direta com o Notion (sem bibliotecas externas)
   const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
     method: 'POST',
     headers: {
@@ -18,16 +17,12 @@ export default async function InstagramGrid() {
     }),
   });
 
-  // Se o Notion bloquear a porta, a tela agora vai avisar o motivo exato!
   if (!res.ok) {
     const errorData = await res.text();
     return (
       <div style={{ padding: '20px', color: 'red', fontFamily: 'sans-serif' }}>
         <h3>Erro de Conexão com o Notion:</h3>
-        <p>O Notion bloqueou o acesso. Veja o motivo abaixo:</p>
-        <pre style={{ fontSize: '11px', background: '#fdd', padding: '10px', borderRadius: '5px' }}>
-          {errorData}
-        </pre>
+        <pre style={{ fontSize: '11px', background: '#fdd', padding: '10px', borderRadius: '5px' }}>{errorData}</pre>
       </div>
     );
   }
@@ -39,8 +34,12 @@ export default async function InstagramGrid() {
     <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
       <div style={{ width: '320px', background: 'white', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', padding: '15px' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
+        {/* Cabeçalho com o novo Botão de Refresh */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '16px' }}>Grid Preview</h3>
+          <a href="/" style={{ fontSize: '12px', background: '#f5f5f5', color: '#333', textDecoration: 'none', padding: '6px 12px', borderRadius: '6px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: 'bold' }}>
+            🔄 Refresh
+          </a>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3px' }}>
