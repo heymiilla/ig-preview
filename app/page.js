@@ -38,13 +38,15 @@ export default async function Page() {
     return { id: post.id, imageUrl, date };
   });
 
-  // CORREÇÃO: A lógica agora manda a data exata para cada post
-  async function updateDatesInNotion(id1, newDate1, id2, newDate2) {
+  // CORREÇÃO: Agora o servidor recebe uma lista de posts e atualiza o calendário em fila (Shift)
+  async function updateDatesInNotion(postsToUpdate) {
     'use server';
     
-    const updatePage = async (pageId, newDate) => {
-      if (!newDate) return; // Proteção para não dar erro se o post não tiver data
-      await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    // Processa a fila um por um para não sobrecarregar o Notion
+    for (const post of postsToUpdate) {
+      if (!post.newDate) continue; 
+      
+      await fetch(`https://api.notion.com/v1/pages/${post.id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${process.env.NOTION_SECRET}`,
@@ -53,14 +55,11 @@ export default async function Page() {
         },
         body: JSON.stringify({
           properties: {
-            'Data de Publicação': { date: { start: newDate } }
+            'Data de Publicação': { date: { start: post.newDate } }
           }
         })
       });
-    };
-
-    // Atualiza as duas páginas simultaneamente
-    await Promise.all([updatePage(id1, newDate1), updatePage(id2, newDate2)]);
+    }
   }
 
   return <ClientGrid initialPosts={posts} updateDatesInNotion={updateDatesInNotion} />;
