@@ -1,6 +1,125 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// === COMPONENTE DO CABEÇALHO DO PERFIL (CLICOU, ALTEROU) ===
+function ProfileHeader() {
+  const defaultProfile = {
+    avatar: 'https://i.postimg.cc/kG83Zk3Z/avatar.png', // Placeholder genérico
+    username: 'yourusername',
+    name: 'Your Display Name',
+    bio: 'Notion systems for your content and small biz backend\n🫶 4000+ templates sold\n👇 NOTION CURES',
+    link: 'https://templatesbygabi.etsy.com',
+    highlights: [
+      { title: 'MOOD', img: 'https://i.postimg.cc/Qtx1z3B2/h1.png' },
+      { title: 'LEOPARD', img: 'https://i.postimg.cc/4xXz9n8Z/h2.png' },
+      { title: 'FASHION', img: 'https://i.postimg.cc/Wb72WnZc/h3.png' }
+    ]
+  };
+
+  const [profile, setProfile] = useState(defaultProfile);
+  const [mounted, setMounted] = useState(false);
+
+  // Carrega os dados salvos no navegador do cliente
+  useEffect(() => {
+    const saved = localStorage.getItem('ig-widget-profile');
+    if (saved) {
+      setProfile(JSON.parse(saved));
+    }
+    setMounted(true);
+  }, []);
+
+  const saveProfile = (newProfile) => {
+    setProfile(newProfile);
+    localStorage.setItem('ig-widget-profile', JSON.stringify(newProfile));
+  };
+
+  const handleTextChange = (field, e) => {
+    saveProfile({ ...profile, [field]: e.target.innerText });
+  };
+
+  const handleImageChange = (field, index = null) => {
+    const newUrl = window.prompt("Cole o link direto (URL) da sua nova imagem:");
+    if (!newUrl) return;
+
+    if (index !== null) {
+      const newHighlights = [...profile.highlights];
+      newHighlights[index].img = newUrl;
+      saveProfile({ ...profile, highlights: newHighlights });
+    } else {
+      saveProfile({ ...profile, [field]: newUrl });
+    }
+  };
+
+  if (!mounted) return null;
+
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      {/* Topo: Foto, Username e Botão */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+        <img 
+          src={profile.avatar} 
+          alt="Avatar" 
+          onClick={() => handleImageChange('avatar')}
+          style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: '1px solid #eaeaea' }} 
+          title="Clique para alterar a foto"
+        />
+        <div style={{ flexGrow: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '700', fontSize: '16px', color: '#262626' }}>@</span>
+              <span 
+                contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('username', e)}
+                style={{ fontWeight: '700', fontSize: '16px', color: '#262626', outline: 'none', borderBottom: '1px dashed transparent', cursor: 'text' }}
+                title="Clique para editar"
+              >{profile.username}</span>
+            </div>
+            <div style={{ color: '#262626', cursor: 'pointer', fontSize: '20px', paddingBottom: '8px' }}>•••</div>
+          </div>
+          <div 
+            contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('name', e)}
+            style={{ fontSize: '14px', color: '#262626', outline: 'none', marginTop: '2px', cursor: 'text' }}
+          >{profile.name}</div>
+        </div>
+      </div>
+
+      {/* Bio e Link */}
+      <div style={{ marginBottom: '16px' }}>
+        <div 
+          contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('bio', e)}
+          style={{ fontSize: '14px', color: '#262626', whiteSpace: 'pre-wrap', outline: 'none', lineHeight: '1.4', cursor: 'text' }}
+        >{profile.bio}</div>
+        <div 
+          contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('link', e)}
+          style={{ fontSize: '14px', color: '#00376b', fontWeight: '600', outline: 'none', marginTop: '4px', cursor: 'text' }}
+        >{profile.link}</div>
+      </div>
+
+      {/* Destaques (Highlights) */}
+      <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
+        {profile.highlights.map((highlight, idx) => (
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+            <div 
+              onClick={() => handleImageChange('highlights', idx)}
+              style={{ width: '60px', height: '60px', borderRadius: '50%', padding: '2px', border: '1px solid #dbdbdb', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              title="Clique para alterar a capa"
+            >
+              <img src={highlight.img} alt={highlight.title} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            </div>
+            <div 
+              contentEditable suppressContentEditableWarning onBlur={(e) => {
+                const newHighlights = [...profile.highlights];
+                newHighlights[idx].title = e.target.innerText;
+                saveProfile({ ...profile, highlights: newHighlights });
+              }}
+              style={{ fontSize: '11px', color: '#262626', outline: 'none', textAlign: 'center', maxWidth: '64px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text' }}
+            >{highlight.title}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // === COMPONENTE DO POST NO GRID ===
 function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, openPreview }) {
@@ -30,10 +149,8 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onClick={() => openPreview(post)} 
       style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
     >
-      {/* RENDERIZA VÍDEO OU IMAGEM */}
       {currentMedia ? (
         currentMedia.isVideo ? (
-          // CORREÇÃO DE PERFORMANCE: O vídeo aqui não tem autoPlay, não tem loop e usa preload="metadata" (super leve!)
           <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} muted playsInline preload="metadata" />
         ) : (
           <img src={currentMedia.url} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
@@ -42,7 +159,6 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
-      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
       {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
           <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
@@ -53,7 +169,6 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         </div>
       ) : null}
 
-      {/* SETAS DE NAVEGAÇÃO */}
       {hasMultipleMedia && isHovered && (
         <>
           <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
@@ -74,7 +189,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [previewPost, setPreviewPost] = useState(null);
   const [previewImgIdx, setPreviewImgIdx] = useState(0);
 
-  // === COLE SEUS LINKS DO POSTIMAGES AQUI ===
+  // === SEUS LINKS DO POSTIMAGES SALVOS ===
   const linkGrid = "https://i.postimg.cc/gJcT83gk/1.png";
   const linkReels = "https://i.postimg.cc/fLWrmY8b/2.png";
   const linkTagged = "https://i.postimg.cc/1tRjwDvt/3.png";
@@ -148,6 +263,10 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
       <div style={{ position: 'relative', width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'opacity 0.2s' }}>
         
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
+          
+          {/* NOSSO NOVO CABEÇALHO DO PERFIL EDITÁVEL AQUI! */}
+          <ProfileHeader />
+
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
@@ -198,7 +317,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#f0f0f0', borderRadius: '8px', overflow: 'hidden' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isVideo ? (
-                 // NO PREVIEW: Mantemos autoPlay e controls (para ter som e tempo), mas sem loop
                  <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay controls playsInline />
               ) : (
                  <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
