@@ -2,6 +2,61 @@
 
 import { useState } from 'react';
 
+// === NOVO COMPONENTE: O Post Individual (Cuida do carrossel e do ícone) ===
+function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop }) {
+  const [imgIndex, setImgIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const hasMultipleImages = post.imageUrls && post.imageUrls.length > 1;
+
+  // Funções para passar as fotos do carrossel
+  const nextImg = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    setImgIndex((prev) => (prev + 1) % post.imageUrls.length);
+  };
+  const prevImg = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    setImgIndex((prev) => (prev - 1 + post.imageUrls.length) % post.imageUrls.length);
+  };
+
+  return (
+    <div 
+      draggable 
+      onDragStart={(e) => handleDragStart(e, index)}
+      onDragOver={handleDragOver}
+      onDrop={(e) => handleDrop(e, index)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
+    >
+      {/* Imagem do Post */}
+      {post.imageUrls && post.imageUrls.length > 0 ? (
+        <img src={post.imageUrls[imgIndex]} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+      ) : (
+        <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
+      )}
+
+      {/* Ícone Oficial de Carrossel do Instagram no topo direito */}
+      {hasMultipleImages && (
+        <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
+          <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18">
+            <path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path>
+          </svg>
+        </div>
+      )}
+
+      {/* Setinhas de navegação (Só aparecem quando passa o mouse e se tiver mais de 1 foto) */}
+      {hasMultipleImages && isHovered && (
+        <>
+          <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
+          <div onMouseDown={nextImg} style={{ position: 'absolute', top: '50%', right: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❯</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// === GRID PRINCIPAL ===
 export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [posts, setPosts] = useState(initialPosts);
   const [draggedIdx, setDraggedIdx] = useState(null);
@@ -17,43 +72,27 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     setDraggedIdx(index);
     e.dataTransfer.effectAllowed = "move";
   };
-
-  const handleDragOver = (e) => {
-    e.preventDefault(); 
-  };
-
+  const handleDragOver = (e) => e.preventDefault(); 
+  
   const handleDrop = async (e, dropIdx) => {
     e.preventDefault();
     if (draggedIdx === null || draggedIdx === dropIdx) return;
-
     setIsUpdating(true); 
 
-    // 1. Guarda a sequência perfeita de datas que o Notion enviou
     const originalDates = posts.map(p => p.date);
-
-    // 2. Empurra os posts reorganizando a lista toda
     const newPostsOrder = [...posts];
     const [draggedPost] = newPostsOrder.splice(draggedIdx, 1);
     newPostsOrder.splice(dropIdx, 0, draggedPost);
 
-    // 3. Distribui as datas antigas para a ordem nova e vê quem precisa atualizar
     const postsToUpdate = [];
     const finalPosts = newPostsOrder.map((post, index) => {
       const correctDate = originalDates[index];
-      
-      if (post.date !== correctDate) {
-        postsToUpdate.push({ id: post.id, newDate: correctDate });
-      }
+      if (post.date !== correctDate) postsToUpdate.push({ id: post.id, newDate: correctDate });
       return { ...post, date: correctDate };
     });
 
     setPosts(finalPosts);
-
-    // 4. Manda o lote de alterações para o Notion
-    if (postsToUpdate.length > 0) {
-      await updateDatesInNotion(postsToUpdate);
-    }
-
+    if (postsToUpdate.length > 0) await updateDatesInNotion(postsToUpdate);
     setIsUpdating(false);
   };
 
@@ -90,20 +129,14 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
           {posts.map((post, index) => (
-            <div 
+            <PostItem 
               key={post.id} 
-              draggable 
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-              style={{ aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
-            >
-              {post.imageUrl ? (
-                <img src={post.imageUrl} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-              ) : (
-                <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '5px' }}>Sem foto</div>
-              )}
-            </div>
+              post={post} 
+              index={index} 
+              handleDragStart={handleDragStart} 
+              handleDragOver={handleDragOver} 
+              handleDrop={handleDrop} 
+            />
           ))}
         </div>
 
