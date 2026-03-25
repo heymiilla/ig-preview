@@ -7,15 +7,16 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
   const [imgIndex, setImgIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   
-  const hasMultipleImages = post.imageUrls && post.imageUrls.length > 1;
+  const hasMultipleMedia = post.mediaFiles && post.mediaFiles.length > 1;
+  const currentMedia = post.mediaFiles && post.mediaFiles.length > 0 ? post.mediaFiles[imgIndex] : null;
 
   const nextImg = (e) => {
     e.stopPropagation(); e.preventDefault();
-    setImgIndex((prev) => (prev + 1) % post.imageUrls.length);
+    setImgIndex((prev) => (prev + 1) % post.mediaFiles.length);
   };
   const prevImg = (e) => {
     e.stopPropagation(); e.preventDefault();
-    setImgIndex((prev) => (prev - 1 + post.imageUrls.length) % post.imageUrls.length);
+    setImgIndex((prev) => (prev - 1 + post.mediaFiles.length) % post.mediaFiles.length);
   };
 
   return (
@@ -26,24 +27,34 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onDrop={(e) => handleDrop(e, index)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => openPreview(post)} // <-- NOVO: Abre a tela cheia ao clicar!
+      onClick={() => openPreview(post)} 
       style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
     >
-      {post.imageUrls && post.imageUrls.length > 0 ? (
-        <img src={post.imageUrls[imgIndex]} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+      {/* RENDERIZA VÍDEO OU IMAGEM */}
+      {currentMedia ? (
+        currentMedia.isVideo ? (
+          <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} autoPlay muted loop playsInline />
+        ) : (
+          <img src={currentMedia.url} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+        )
       ) : (
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
-      {hasMultipleImages && (
+      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
+      {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
-          <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18">
-            <path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path>
-          </svg>
+          <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
+        </div>
+      ) : currentMedia?.isVideo ? (
+        <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
+          {/* Ícone de Play para indicar Reels/Vídeo */}
+          <svg aria-label="Reels" fill="currentColor" height="18" viewBox="0 0 24 24" width="18"><path d="M12 0a12 12 0 1012 12A12 12 0 0012 0zm5.24 12.63l-6.89 4.31A1.18 1.18 0 018.5 16V7.4a1.18 1.18 0 011.85-1l6.89 4.31a1.18 1.18 0 010 1.92z"></path></svg>
         </div>
       )}
 
-      {hasMultipleImages && isHovered && (
+      {/* SETAS DE NAVEGAÇÃO */}
+      {hasMultipleMedia && isHovered && (
         <>
           <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
           <div onMouseDown={nextImg} style={{ position: 'absolute', top: '50%', right: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❯</div>
@@ -56,10 +67,10 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
 // === GRID PRINCIPAL ===
 export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [posts, setPosts] = useState(initialPosts);
+  const [activeTab, setActiveTab] = useState('POSTS'); // NOVA: Estado da aba clicada
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // === ESTADOS DO PREVIEW (TELA CHEIA) ===
   const [previewPost, setPreviewPost] = useState(null);
   const [previewImgIdx, setPreviewImgIdx] = useState(0);
 
@@ -68,6 +79,14 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const linkReels = "https://i.postimg.cc/fLWrmY8b/2.png";
   const linkTagged = "https://i.postimg.cc/1tRjwDvt/3.png";
   // ===========================================
+
+  // Filtra as fotos com base na aba clicada!
+  const displayedPosts = posts.filter(post => {
+    if (activeTab === 'POSTS') return true;
+    if (activeTab === 'REELS') return post.mediaFiles && post.mediaFiles.some(m => m.isVideo);
+    if (activeTab === 'TAGGED') return false; // Aba vazia por enquanto
+    return true;
+  });
 
   const handleDragStart = (e, index) => {
     setDraggedIdx(index);
@@ -80,10 +99,17 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     if (draggedIdx === null || draggedIdx === dropIdx) return;
     setIsUpdating(true); 
 
+    // Mapeamento cuidadoso para não estragar a lista quando estiver na aba de vídeos
+    const draggedPostId = displayedPosts[draggedIdx].id;
+    const dropPostId = displayedPosts[dropIdx].id;
+    
+    const actualDragIdx = posts.findIndex(p => p.id === draggedPostId);
+    const actualDropIdx = posts.findIndex(p => p.id === dropPostId);
+
     const originalDates = posts.map(p => p.date);
     const newPostsOrder = [...posts];
-    const [draggedPost] = newPostsOrder.splice(draggedIdx, 1);
-    newPostsOrder.splice(dropIdx, 0, draggedPost);
+    const [draggedPost] = newPostsOrder.splice(actualDragIdx, 1);
+    newPostsOrder.splice(actualDropIdx, 0, draggedPost);
 
     const postsToUpdate = [];
     const finalPosts = newPostsOrder.map((post, index) => {
@@ -102,29 +128,27 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     window.location.reload(); 
   };
 
-  // Funções do Preview
   const openPreview = (post) => {
-    if (!post.imageUrls || post.imageUrls.length === 0) return;
+    if (!post.mediaFiles || post.mediaFiles.length === 0) return;
     setPreviewPost(post);
     setPreviewImgIdx(0);
   };
   const closePreview = () => setPreviewPost(null);
+  
   const nextPreviewImg = (e) => {
     e.stopPropagation();
-    setPreviewImgIdx((prev) => (prev + 1) % previewPost.imageUrls.length);
+    setPreviewImgIdx((prev) => (prev + 1) % previewPost.mediaFiles.length);
   };
   const prevPreviewImg = (e) => {
     e.stopPropagation();
-    setPreviewImgIdx((prev) => (prev - 1 + previewPost.imageUrls.length) % previewPost.imageUrls.length);
+    setPreviewImgIdx((prev) => (prev - 1 + previewPost.mediaFiles.length) % previewPost.mediaFiles.length);
   };
 
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      {/* Container principal precisa de position: relative para a tela de preview ficar por cima dele */}
       <div style={{ position: 'relative', width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'opacity 0.2s' }}>
         
-        {/* Camada de Opacidade (quando atualiza as datas) */}
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
@@ -135,20 +159,21 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
           </div>
 
+          {/* AS ABAS AGORA SÃO CLICÁVEIS */}
           <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-                <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 1 }} />
+            <div onClick={() => setActiveTab('POSTS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'POSTS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'POSTS' ? 1 : 0.35 }} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-                <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
+            <div onClick={() => setActiveTab('REELS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'REELS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'REELS' ? 1 : 0.35 }} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-                <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
+            <div onClick={() => setActiveTab('TAGGED')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'TAGGED' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'TAGGED' ? 1 : 0.35 }} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
-            {posts.map((post, index) => (
+            {displayedPosts.map((post, index) => (
               <PostItem 
                 key={post.id} 
                 post={post} 
@@ -156,17 +181,16 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
                 handleDragStart={handleDragStart} 
                 handleDragOver={handleDragOver} 
                 handleDrop={handleDrop} 
-                openPreview={openPreview} // Passando a função para dentro do quadradinho
+                openPreview={openPreview}
               />
             ))}
           </div>
         </div>
 
-        {/* === TELA CHEIA (MODAL DE PREVIEW) === */}
+        {/* === TELA CHEIA (PREVIEW) === */}
         {previewPost && (
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255, 255, 255, 0.96)', zIndex: 10, display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', padding: '16px' }}>
             
-            {/* Cabeçalho do Preview com botão fechar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontSize: '14px', fontWeight: '500', color: '#262626' }}>Pré-visualização</span>
               <div onClick={closePreview} style={{ cursor: 'pointer', background: '#f5f5f5', color: '#262626', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
@@ -174,29 +198,30 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               </div>
             </div>
 
-            {/* Imagem Ampliada */}
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#f0f0f0', borderRadius: '8px', overflow: 'hidden' }}>
-              <img src={previewPost.imageUrls[previewImgIdx]} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               
-              {/* Setas Grandes do Carrossel (só se tiver mais de 1 foto) */}
-              {previewPost.imageUrls.length > 1 && (
+              {/* No preview, o vídeo ganha "controls" para ter som e barra de tempo */}
+              {previewPost.mediaFiles[previewImgIdx].isVideo ? (
+                 <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay controls playsInline />
+              ) : (
+                 <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
+              
+              {previewPost.mediaFiles.length > 1 && (
                 <>
                   <div onClick={prevPreviewImg} style={{ position: 'absolute', top: '50%', left: '8px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', color: '#262626', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❮</div>
                   <div onClick={nextPreviewImg} style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', color: '#262626', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❯</div>
                   
-                  {/* Bolinhas indicadoras (Dots) */}
                   <div style={{ position: 'absolute', bottom: '12px', left: '0', width: '100%', display: 'flex', justifyContent: 'center', gap: '4px' }}>
-                    {previewPost.imageUrls.map((_, idx) => (
+                    {previewPost.mediaFiles.map((_, idx) => (
                       <div key={idx} style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: idx === previewImgIdx ? '#0095f6' : 'rgba(255,255,255,0.6)', transition: 'background-color 0.2s' }} />
                     ))}
                   </div>
                 </>
               )}
             </div>
-            
           </div>
         )}
-
       </div>
     </div>
   );
