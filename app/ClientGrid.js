@@ -20,7 +20,6 @@ function ProfileHeader() {
   const [profile, setProfile] = useState(defaultProfile);
   const [mounted, setMounted] = useState(false);
   
-  // Controle da nova caixinha de link personalizada (Para driblar o bloqueio do Notion)
   const [modal, setModal] = useState({ isOpen: false, field: null, index: null, tempUrl: '' });
 
   useEffect(() => {
@@ -54,7 +53,7 @@ function ProfileHeader() {
         saveProfile({ ...profile, [modal.field]: modal.tempUrl });
       }
     }
-    setModal({ isOpen: false, field: null, index: null, tempUrl: '' }); // Fecha a caixinha
+    setModal({ isOpen: false, field: null, index: null, tempUrl: '' }); 
   };
 
   if (!mounted) return null;
@@ -62,7 +61,7 @@ function ProfileHeader() {
   return (
     <div style={{ marginBottom: '20px', position: 'relative' }}>
       
-      {/* CAIXINHA DE LINK PERSONALIZADA (Aparece ao clicar na foto) */}
+      {/* CAIXINHA DE LINK PERSONALIZADA */}
       {modal.isOpen && (
         <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: '1px solid #e0e0e0' }}>
           <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: '#262626' }}>Cole o link da nova imagem:</p>
@@ -170,6 +169,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onClick={() => openPreview(post)} 
       style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
     >
+      {/* Aqui no grid continua 'cover' para o quadradinho ficar perfeito */}
       {currentMedia ? (
         currentMedia.isVideo ? (
           <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} muted playsInline preload="metadata" />
@@ -287,7 +287,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
           
           <ProfileHeader />
 
-          {/* BARRA DE BOTÕES LIMPA (Sem Plan grid e sem os três pontinhos) */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <div onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '4px 10px', borderRadius: '4px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500' }}>
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
@@ -333,12 +332,13 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               </div>
             </div>
 
-            <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#f0f0f0', borderRadius: '8px', overflow: 'hidden' }}>
+            {/* FUNDO ESCURO E OBJECT-FIT CONTAIN NA VISUALIZAÇÃO AQUI */}
+            <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isVideo ? (
-                 <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay controls playsInline />
+                 <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay controls playsInline />
               ) : (
-                 <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                 <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               )}
               
               {previewPost.mediaFiles.length > 1 && (
