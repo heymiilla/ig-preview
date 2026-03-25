@@ -33,7 +33,8 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       {/* RENDERIZA VÍDEO OU IMAGEM */}
       {currentMedia ? (
         currentMedia.isVideo ? (
-          <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} autoPlay muted loop playsInline />
+          // CORREÇÃO DE PERFORMANCE: O vídeo aqui não tem autoPlay, não tem loop e usa preload="metadata" (super leve!)
+          <video src={currentMedia.url} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} muted playsInline preload="metadata" />
         ) : (
           <img src={currentMedia.url} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
         )
@@ -41,7 +42,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
-      {/* ÍCONES NO CANTO SUPERIOR DIREITO (AQUI ESTAVA O ERRO, CORRIGIDO!) */}
+      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
       {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
           <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
@@ -197,6 +198,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#f0f0f0', borderRadius: '8px', overflow: 'hidden' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isVideo ? (
+                 // NO PREVIEW: Mantemos autoPlay e controls (para ter som e tempo), mas sem loop
                  <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay controls playsInline />
               ) : (
                  <img src={previewPost.mediaFiles[previewImgIdx].url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
