@@ -6,7 +6,6 @@ export default async function Page() {
   const databaseId = process.env.NOTION_DATABASE_ID;
   const secret = process.env.NOTION_SECRET;
 
-  // 1. Busca os posts no Notion
   const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
     method: 'POST',
     headers: {
@@ -32,7 +31,6 @@ export default async function Page() {
 
   const data = await res.json();
   
-  // Limpa o entulho e separa só o que a tela vai precisar (ID, Foto e Data)
   const posts = data.results.map((post) => {
     const imageFile = post.properties['Imagem']?.files?.[0];
     const imageUrl = imageFile?.type === 'external' ? imageFile.external.url : imageFile?.file?.url;
@@ -40,11 +38,12 @@ export default async function Page() {
     return { id: post.id, imageUrl, date };
   });
 
-  // 2. FUNÇÃO SECRETA DO SERVIDOR: Troca as datas no Notion quando você solta a foto
-  async function swapDatesInNotion(id1, date1, id2, date2) {
-    'use server'; // Essa tag mágica impede que a senha vaze
+  // CORREÇÃO: A lógica agora manda a data exata para cada post
+  async function updateDatesInNotion(id1, newDate1, id2, newDate2) {
+    'use server';
     
     const updatePage = async (pageId, newDate) => {
+      if (!newDate) return; // Proteção para não dar erro se o post não tiver data
       await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
         method: 'PATCH',
         headers: {
@@ -60,10 +59,9 @@ export default async function Page() {
       });
     };
 
-    // Atualiza as duas páginas no Notion ao mesmo tempo
-    await Promise.all([updatePage(id1, date2), updatePage(id2, date1)]);
+    // Atualiza as duas páginas simultaneamente
+    await Promise.all([updatePage(id1, newDate1), updatePage(id2, newDate2)]);
   }
 
-  // Chama a tela e entrega os posts e a função secreta para ela
-  return <ClientGrid initialPosts={posts} swapDatesInNotion={swapDatesInNotion} />;
+  return <ClientGrid initialPosts={posts} updateDatesInNotion={updateDatesInNotion} />;
 }
