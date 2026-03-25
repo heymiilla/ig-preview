@@ -4,6 +4,12 @@ export default async function InstagramGrid() {
   const databaseId = process.env.NOTION_DATABASE_ID;
   const secret = process.env.NOTION_SECRET;
 
+  // === COLE OS LINKS DIRETOS DAS SUAS IMAGENS PNG AQUI ===
+  const linkGrid = "https://i.postimg.cc/8kKVyYSw/Design-sem-nome-(2).png";
+  const linkReels = "https://i.postimg.cc/9MQnZWrV/Design-sem-nome-(3).png";
+  const linkTagged = "https://i.postimg.cc/zXgPn2X3/Design-sem-nome-(4).png";
+  // =======================================================
+
   const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
     method: 'POST',
     headers: {
@@ -30,14 +36,9 @@ export default async function InstagramGrid() {
   const data = await res.json();
   const posts = data.results;
 
-  // Cores exatas do Instagram mobile
-  const activeColor = '#262626'; // Preto para aba ativa
-  const inactiveColor = '#8e8e8e'; // Cinza para abas inativas
-
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      {/* Caixa Principal - Estilo Notion */}
       <div style={{ width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px' }}>
         
         {/* Botões Superiores */}
@@ -52,40 +53,26 @@ export default async function InstagramGrid() {
           <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
         </div>
 
-        {/* Abas de Navegação (ÍCONES EXATOS DA SUA IMAGEM) */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', color: inactiveColor, marginBottom: '2px' }}>
+        {/* Abas com as suas Imagens PNG */}
+        <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
            
-           {/* Aba Ativa: POSTS (Ícone de Grid 3x3) */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: activeColor, borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <line x1="3" y1="8.5" x2="21" y2="8.5"/>
-                <line x1="3" y1="15.5" x2="21" y2="15.5"/>
-                <line x1="8.5" y1="3" x2="8.5" y2="21"/>
-                <line x1="15.5" y1="3" x2="15.5" y2="21"/>
-              </svg>
+           {/* Aba Ativa: POSTS */}
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: '1px solid #262626', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+              <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 1 }} />
            </div>
 
-           {/* Aba Inativa: REELS (Clapperboard minimalista) */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: inactiveColor, paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="6" width="20" height="12" rx="2"/>
-                <path d="m10 10 5 3-5 3v-6Z"/>
-                <path d="M6 6l4 4"/>
-                <path d="M6 12l4 4"/>
-               </svg>
+           {/* Aba Inativa: REELS */}
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
+               <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
            </div>
 
-           {/* Aba Inativa: TAGGED (Ícone de Perfil na Tag) */}
-           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', color: inactiveColor, paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
-               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <circle cx="12" cy="8.5" r="3.5"/>
-                <path d="M19 18.5a7 7 0 0 0-14 0"/>
-               </svg>
+           {/* Aba Inativa: TAGGED */}
+           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingTop: '12px', paddingBottom: '12px', cursor: 'pointer' }}>
+               <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: 0.35 }} />
            </div>
         </div>
 
-        {/* Grade de Fotos - Proporção 4:5 */}
+        {/* Grade de Fotos */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
           {posts.map((post) => {
             const imageFile = post.properties['Imagem']?.files?.[0];
