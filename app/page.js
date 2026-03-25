@@ -14,7 +14,7 @@ export default async function Page() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      page_size: 18, // Aumentamos para buscar mais posts e preencher a aba de Reels!
+      page_size: 18,
       sorts: [{ property: 'Data de Publicação', direction: 'descending' }],
     }),
   });
@@ -31,17 +31,28 @@ export default async function Page() {
 
   const data = await res.json();
   
-  // ATUALIZAÇÃO: O código agora detecta se o arquivo é um vídeo (.mp4, .mov, etc)
   const posts = data.results.map((post) => {
+    // 1. Puxa as mídias do UPLOAD normal (coluna 'Imagem')
     const files = post.properties['Imagem']?.files || [];
-    
     const mediaFiles = files.map((file) => {
       const url = file.type === 'external' ? file.external.url : file.file?.url;
       const name = (file.name || '').toLowerCase();
-      // Se o nome do arquivo ou a URL tiver formato de vídeo, ele marca como isVideo = true
       const isVideo = name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || url.includes('.mp4');
       return { url, isVideo };
-    }).filter(m => m.url); // Filtra para garantir que tem link
+    }).filter(m => m.url);
+
+    // 2. Puxa a mídia da coluna EXATA "Link direto"
+    const directLink = post.properties['Link direto']?.url;
+    if (directLink) {
+      const isVideo = directLink.match(/\.(mp4|mov|webm)$/i) !== null;
+      mediaFiles.push({ url: directLink, isVideo }); 
+    }
+
+    // 3. Puxa a mídia da coluna EXATA "Canva Link"
+    const canvaLink = post.properties['Canva Link']?.url;
+    if (canvaLink) {
+      mediaFiles.push({ url: canvaLink, isVideo: false }); 
+    }
 
     const date = post.properties['Data de Publicação']?.date?.start;
     return { id: post.id, mediaFiles, date };
