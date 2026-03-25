@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 // === CABEÇALHO DO PERFIL ===
-function ProfileHeader() {
+function ProfileHeader({ theme }) {
   const defaultProfile = {
     avatar: 'https://placehold.co/150x150/e0e0e0/a8a8a8?text=Foto', 
     username: 'seunome',
@@ -59,42 +59,42 @@ function ProfileHeader() {
     <div style={{ marginBottom: '20px', position: 'relative' }}>
       
       {modal.isOpen && (
-        <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: '1px solid #e0e0e0' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: '#262626' }}>Cole o link da nova imagem:</p>
+        <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: theme.modalBg, padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: `1px solid ${theme.border}` }}>
+          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: theme.text }}>Cole o link da nova imagem:</p>
           <input 
             type="text" 
             placeholder="https://i.postimg.cc/..."
             value={modal.tempUrl} 
             onChange={(e) => setModal({ ...modal, tempUrl: e.target.value })}
-            style={{ width: '100%', padding: '8px', marginBottom: '12px', borderRadius: '4px', border: '1px solid #dbdbdb', fontSize: '12px' }} 
+            style={{ width: '100%', padding: '8px', marginBottom: '12px', borderRadius: '4px', border: `1px solid ${theme.border}`, background: theme.bg, color: theme.text, fontSize: '12px' }} 
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-            <button onClick={() => setModal({ isOpen: false, field: null, index: null, tempUrl: '' })} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#efefef', color: '#262626', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Cancelar</button>
+            <button onClick={() => setModal({ isOpen: false, field: null, index: null, tempUrl: '' })} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: theme.postBg, color: theme.text, cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Cancelar</button>
             <button onClick={saveNewImage} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#0095f6', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Salvar</button>
           </div>
         </div>
       )}
 
-      {/* paddingRight de 80px evita que o texto passe por baixo do botão de Refresh que vai ficar na direita */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '80px' }}>
+      {/* paddingRight de 120px evita que o texto passe por baixo dos botões novos na direita */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '120px' }}>
         <img 
           src={profile.avatar} 
           alt="Avatar" 
           onClick={() => openImageModal('avatar')}
-          style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: '1px solid #eaeaea' }} 
+          style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: `1px solid ${theme.border}` }} 
           title="Clique para alterar a foto"
         />
         <div style={{ flexGrow: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span 
               contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('username', e)}
-              style={{ fontWeight: '700', fontSize: '16px', color: '#262626', outline: 'none', borderBottom: '1px dashed transparent', cursor: 'text' }}
+              style={{ fontWeight: '700', fontSize: '16px', color: theme.text, outline: 'none', borderBottom: '1px dashed transparent', cursor: 'text' }}
               title="Clique para editar"
             >{profile.username}</span>
           </div>
           <div 
             contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('name', e)}
-            style={{ fontSize: '14px', color: '#262626', outline: 'none', marginTop: '2px', cursor: 'text' }}
+            style={{ fontSize: '14px', color: theme.text, outline: 'none', marginTop: '2px', cursor: 'text' }}
           >{profile.name}</div>
         </div>
       </div>
@@ -102,11 +102,11 @@ function ProfileHeader() {
       <div style={{ marginBottom: '16px' }}>
         <div 
           contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('bio', e)}
-          style={{ fontSize: '14px', color: '#262626', whiteSpace: 'pre-wrap', outline: 'none', lineHeight: '1.4', cursor: 'text' }}
+          style={{ fontSize: '14px', color: theme.text, whiteSpace: 'pre-wrap', outline: 'none', lineHeight: '1.4', cursor: 'text' }}
         >{profile.bio}</div>
         <div 
           contentEditable suppressContentEditableWarning onBlur={(e) => handleTextChange('link', e)}
-          style={{ fontSize: '14px', color: '#00376b', fontWeight: '600', outline: 'none', marginTop: '4px', cursor: 'text' }}
+          style={{ fontSize: '14px', color: theme.link, fontWeight: '600', outline: 'none', marginTop: '4px', cursor: 'text' }}
         >{profile.link}</div>
       </div>
 
@@ -115,19 +115,18 @@ function ProfileHeader() {
           <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
             <div 
               onClick={() => openImageModal('highlights', idx)}
-              style={{ width: '60px', height: '60px', borderRadius: '50%', padding: '2px', border: '1px solid #dbdbdb', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: '60px', height: '60px', borderRadius: '50%', padding: '2px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               title="Clique para alterar a capa"
             >
               <img src={highlight.img} alt={highlight.title} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             </div>
-            {/* FONTE SERIFADA ELEGANTE NO DESTAQUE AQUI */}
             <div 
               contentEditable suppressContentEditableWarning onBlur={(e) => {
                 const newHighlights = [...profile.highlights];
                 newHighlights[idx].title = e.target.innerText;
                 saveProfile({ ...profile, highlights: newHighlights });
               }}
-              style={{ fontFamily: '"Georgia", "Times New Roman", serif', fontSize: '12px', color: '#262626', outline: 'none', textAlign: 'center', maxWidth: '64px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text' }}
+              style={{ fontFamily: '"Georgia", "Times New Roman", serif', fontSize: '12px', color: theme.text, outline: 'none', textAlign: 'center', maxWidth: '64px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text' }}
             >{highlight.title}</div>
           </div>
         ))}
@@ -137,7 +136,7 @@ function ProfileHeader() {
 }
 
 // === COMPONENTE DO POST NO GRID ===
-function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, openPreview }) {
+function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, openPreview, theme }) {
   const [imgIndex, setImgIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   
@@ -162,7 +161,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openPreview(post)} 
-      style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: '#f0f0f0', overflow: 'hidden', cursor: 'grab' }}
+      style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: theme.postBg, overflow: 'hidden', cursor: 'grab' }}
     >
       {currentMedia ? (
         currentMedia.isCanva ? (
@@ -173,7 +172,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
           <img src={currentMedia.url} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
         )
       ) : (
-        <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
+        <div style={{ fontSize: '10px', color: theme.textSecondary, display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
       {hasMultipleMedia ? (
@@ -188,8 +187,8 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
 
       {hasMultipleMedia && isHovered && (
         <>
-          <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
-          <div onMouseDown={nextImg} style={{ position: 'absolute', top: '50%', right: '4px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❯</div>
+          <div onMouseDown={prevImg} style={{ position: 'absolute', top: '50%', left: '4px', transform: 'translateY(-50%)', background: theme.isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)', color: theme.text, borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❮</div>
+          <div onMouseDown={nextImg} style={{ position: 'absolute', top: '50%', right: '4px', transform: 'translateY(-50%)', background: theme.isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)', color: theme.text, borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', backdropFilter: 'blur(2px)' }}>❯</div>
         </>
       )}
     </div>
@@ -205,6 +204,36 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   
   const [previewPost, setPreviewPost] = useState(null);
   const [previewImgIdx, setPreviewImgIdx] = useState(0);
+
+  // === ESTADO DO DARK MODE ===
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Puxa a preferência salva no navegador assim que carrega
+    const savedMode = localStorage.getItem('ig-widget-dark-mode');
+    if (savedMode) setIsDarkMode(JSON.parse(savedMode));
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); // Salva a escolha!
+  };
+
+  // === TEMA INTELIGENTE ===
+  const theme = {
+    isDark: isDarkMode,
+    bg: isDarkMode ? '#000000' : '#ffffff',
+    text: isDarkMode ? '#f5f5f5' : '#262626',
+    textSecondary: isDarkMode ? '#a8a8a8' : '#999999',
+    border: isDarkMode ? '#262626' : '#e0e0e0',
+    postBg: isDarkMode ? '#121212' : '#f0f0f0',
+    modalBg: isDarkMode ? '#1c1c1c' : '#ffffff',
+    buttonBg: isDarkMode ? '#1c1c1c' : '#ffffff',
+    link: isDarkMode ? '#e0f1ff' : '#00376b',
+    overlay: isDarkMode ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.96)',
+    invertFilter: isDarkMode ? 'invert(1)' : 'none' // Mágica para os ícones PNG pretos ficarem brancos!
+  };
 
   // === SEUS LINKS DO POSTIMAGES SALVOS ===
   const linkGrid = "https://i.postimg.cc/gJcT83gk/1.png";
@@ -277,30 +306,44 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      <div style={{ position: 'relative', width: '340px', background: 'white', borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'opacity 0.2s' }}>
+      <div style={{ position: 'relative', width: '340px', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
         
-        {/* BOTÃO REFRESH NO CANTO SUPERIOR DIREITO */}
-        <div 
-          onClick={handleRefresh} 
-          style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'white', color: '#37352f', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e0e0e0', cursor: 'pointer', fontWeight: '500', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
-        >
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
-          {isUpdating ? 'Salvando...' : 'Refresh'}
+        {/* === CONTAINER DOS BOTÕES FLUTUANTES (Top Right) === */}
+        <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
+          
+          {/* BOTÃO DARK MODE */}
+          <div 
+            onClick={toggleDarkMode} 
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: theme.buttonBg, color: theme.text, width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+            title="Modo Escuro / Claro"
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </div>
+
+          {/* BOTÃO REFRESH */}
+          <div 
+            onClick={handleRefresh} 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: theme.buttonBg, color: theme.text, padding: '0 10px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', fontWeight: '500', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
+            {isUpdating ? '...' : 'Refresh'}
+          </div>
+
         </div>
 
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
           
-          <ProfileHeader />
+          <ProfileHeader theme={theme} />
 
-          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px', marginTop: '16px' }}>
-            <div onClick={() => setActiveTab('POSTS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'POSTS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-                <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'POSTS' ? 1 : 0.35 }} />
+          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: `1px solid ${theme.border}`, marginBottom: '2px', marginTop: '16px' }}>
+            <div onClick={() => setActiveTab('POSTS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'POSTS' ? `1px solid ${theme.text}` : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'POSTS' ? 1 : 0.35, filter: theme.invertFilter }} />
             </div>
-            <div onClick={() => setActiveTab('REELS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'REELS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-                <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'REELS' ? 1 : 0.35 }} />
+            <div onClick={() => setActiveTab('REELS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'REELS' ? `1px solid ${theme.text}` : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkReels} alt="Reels" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'REELS' ? 1 : 0.35, filter: theme.invertFilter }} />
             </div>
-            <div onClick={() => setActiveTab('TAGGED')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'TAGGED' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
-                <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'TAGGED' ? 1 : 0.35 }} />
+            <div onClick={() => setActiveTab('TAGGED')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'TAGGED' ? `1px solid ${theme.text}` : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
+                <img src={linkTagged} alt="Tagged" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'TAGGED' ? 1 : 0.35, filter: theme.invertFilter }} />
             </div>
           </div>
 
@@ -314,6 +357,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
                 handleDragOver={handleDragOver} 
                 handleDrop={handleDrop} 
                 openPreview={openPreview}
+                theme={theme}
               />
             ))}
           </div>
@@ -321,11 +365,11 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
         {/* === TELA CHEIA (PREVIEW) === */}
         {previewPost && (
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255, 255, 255, 0.96)', zIndex: 10, display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', padding: '16px' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: theme.overlay, zIndex: 10, display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', padding: '16px' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500', color: '#262626' }}>Pré-visualização</span>
-              <div onClick={closePreview} style={{ cursor: 'pointer', background: '#f5f5f5', color: '#262626', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+              <span style={{ fontSize: '14px', fontWeight: '500', color: theme.text }}>Pré-visualização</span>
+              <div onClick={closePreview} style={{ cursor: 'pointer', background: theme.buttonBg, color: theme.text, borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
                 ✕
               </div>
             </div>
@@ -342,8 +386,8 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               
               {previewPost.mediaFiles.length > 1 && (
                 <>
-                  <div onClick={prevPreviewImg} style={{ position: 'absolute', top: '50%', left: '8px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', color: '#262626', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❮</div>
-                  <div onClick={nextPreviewImg} style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', color: '#262626', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❯</div>
+                  <div onClick={prevPreviewImg} style={{ position: 'absolute', top: '50%', left: '8px', transform: 'translateY(-50%)', background: theme.isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)', color: theme.text, borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❮</div>
+                  <div onClick={nextPreviewImg} style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', background: theme.isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)', color: theme.text, borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>❯</div>
                   
                   <div style={{ position: 'absolute', bottom: '12px', left: '0', width: '100%', display: 'flex', justifyContent: 'center', gap: '4px' }}>
                     {previewPost.mediaFiles.map((_, idx) => (
