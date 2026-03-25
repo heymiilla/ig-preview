@@ -41,17 +41,16 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
         <div style={{ fontSize: '10px', color: '#999', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>Sem foto</div>
       )}
 
-      {/* ÍCONES NO CANTO SUPERIOR DIREITO */}
+      {/* ÍCONES NO CANTO SUPERIOR DIREITO (AQUI ESTAVA O ERRO, CORRIGIDO!) */}
       {hasMultipleMedia ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
           <svg aria-label="Carousel" fill="currentColor" height="18" viewBox="0 0 48 48" width="18"><path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h13.4c5.5 0 10-4.5 10-10V20.5c0-2.4-.9-4.6-2.5-6.1-.4-.4-1-.1-1 .5z"></path></svg>
         </div>
       ) : currentMedia?.isVideo ? (
         <div style={{ position: 'absolute', top: '8px', right: '8px', color: 'white', filter: 'drop-shadow(0px 0px 3px rgba(0,0,0,0.6))', pointerEvents: 'none' }}>
-          {/* Ícone de Play para indicar Reels/Vídeo */}
           <svg aria-label="Reels" fill="currentColor" height="18" viewBox="0 0 24 24" width="18"><path d="M12 0a12 12 0 1012 12A12 12 0 0012 0zm5.24 12.63l-6.89 4.31A1.18 1.18 0 018.5 16V7.4a1.18 1.18 0 011.85-1l6.89 4.31a1.18 1.18 0 010 1.92z"></path></svg>
         </div>
-      )}
+      ) : null}
 
       {/* SETAS DE NAVEGAÇÃO */}
       {hasMultipleMedia && isHovered && (
@@ -67,7 +66,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
 // === GRID PRINCIPAL ===
 export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [posts, setPosts] = useState(initialPosts);
-  const [activeTab, setActiveTab] = useState('POSTS'); // NOVA: Estado da aba clicada
+  const [activeTab, setActiveTab] = useState('POSTS'); 
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   
@@ -80,11 +79,10 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const linkTagged = "https://i.postimg.cc/1tRjwDvt/3.png";
   // ===========================================
 
-  // Filtra as fotos com base na aba clicada!
   const displayedPosts = posts.filter(post => {
     if (activeTab === 'POSTS') return true;
     if (activeTab === 'REELS') return post.mediaFiles && post.mediaFiles.some(m => m.isVideo);
-    if (activeTab === 'TAGGED') return false; // Aba vazia por enquanto
+    if (activeTab === 'TAGGED') return false; 
     return true;
   });
 
@@ -99,7 +97,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     if (draggedIdx === null || draggedIdx === dropIdx) return;
     setIsUpdating(true); 
 
-    // Mapeamento cuidadoso para não estragar a lista quando estiver na aba de vídeos
     const draggedPostId = displayedPosts[draggedIdx].id;
     const dropPostId = displayedPosts[dropIdx].id;
     
@@ -159,7 +156,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             <div style={{ color: '#787774', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>•••</div>
           </div>
 
-          {/* AS ABAS AGORA SÃO CLICÁVEIS */}
           <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #e0e0e0', marginBottom: '2px' }}>
             <div onClick={() => setActiveTab('POSTS')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', borderTop: activeTab === 'POSTS' ? '1px solid #262626' : '1px solid transparent', paddingTop: '12px', paddingBottom: '12px', marginTop: '-1px', cursor: 'pointer' }}>
                 <img src={linkGrid} alt="Grid" style={{ width: '22px', height: '22px', objectFit: 'contain', opacity: activeTab === 'POSTS' ? 1 : 0.35 }} />
@@ -200,7 +196,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
             <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#f0f0f0', borderRadius: '8px', overflow: 'hidden' }}>
               
-              {/* No preview, o vídeo ganha "controls" para ter som e barra de tempo */}
               {previewPost.mediaFiles[previewImgIdx].isVideo ? (
                  <video src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay controls playsInline />
               ) : (
