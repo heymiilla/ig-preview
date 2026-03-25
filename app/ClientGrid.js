@@ -28,27 +28,38 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
     setIsUpdating(true); 
 
-    const draggedPost = posts[draggedIdx];
-    const droppedPost = posts[dropIdx];
+    // 1. Guarda a sequência perfeita de datas que o Notion enviou
+    const originalDates = posts.map(p => p.date);
 
-    // 1. Troca as fotos na tela imediatamente
-    const newPosts = [...posts];
-    newPosts[draggedIdx] = droppedPost;
-    newPosts[dropIdx] = draggedPost;
-    setPosts(newPosts);
+    // 2. Empurra os posts reorganizando a lista toda
+    const newPostsOrder = [...posts];
+    const [draggedPost] = newPostsOrder.splice(draggedIdx, 1);
+    newPostsOrder.splice(dropIdx, 0, draggedPost);
 
-    // 2. Avisa o Notion das datas corretas
-    await updateDatesInNotion(
-      draggedPost.id, droppedPost.date, 
-      droppedPost.id, draggedPost.date
-    );
+    // 3. Distribui as datas antigas para a ordem nova e vê quem precisa atualizar
+    const postsToUpdate = [];
+    const finalPosts = newPostsOrder.map((post, index) => {
+      const correctDate = originalDates[index];
+      
+      if (post.date !== correctDate) {
+        postsToUpdate.push({ id: post.id, newDate: correctDate });
+      }
+      return { ...post, date: correctDate };
+    });
+
+    setPosts(finalPosts);
+
+    // 4. Manda o lote de alterações para o Notion
+    if (postsToUpdate.length > 0) {
+      await updateDatesInNotion(postsToUpdate);
+    }
 
     setIsUpdating(false);
   };
 
   const handleRefresh = () => {
     setIsUpdating(true);
-    window.location.reload(); // Refresh bruto que funciona 100% das vezes
+    window.location.reload(); 
   };
 
   return (
