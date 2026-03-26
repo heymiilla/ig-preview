@@ -75,7 +75,6 @@ function ProfileHeader({ theme }) {
         </div>
       )}
 
-      {/* paddingRight de 120px evita que o texto passe por baixo dos botões novos na direita */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '120px' }}>
         <img 
           src={profile.avatar} 
@@ -205,11 +204,9 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const [previewPost, setPreviewPost] = useState(null);
   const [previewImgIdx, setPreviewImgIdx] = useState(0);
 
-  // === ESTADO DO DARK MODE ===
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Puxa a preferência salva no navegador assim que carrega
     const savedMode = localStorage.getItem('ig-widget-dark-mode');
     if (savedMode) setIsDarkMode(JSON.parse(savedMode));
   }, []);
@@ -217,10 +214,9 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); // Salva a escolha!
+    localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); 
   };
 
-  // === TEMA INTELIGENTE ===
   const theme = {
     isDark: isDarkMode,
     bg: isDarkMode ? '#000000' : '#ffffff',
@@ -232,14 +228,12 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     buttonBg: isDarkMode ? '#1c1c1c' : '#ffffff',
     link: isDarkMode ? '#e0f1ff' : '#00376b',
     overlay: isDarkMode ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.96)',
-    invertFilter: isDarkMode ? 'invert(1)' : 'none' // Mágica para os ícones PNG pretos ficarem brancos!
+    invertFilter: isDarkMode ? 'invert(1)' : 'none' 
   };
 
-  // === SEUS LINKS DO POSTIMAGES SALVOS ===
   const linkGrid = "https://i.postimg.cc/gJcT83gk/1.png";
   const linkReels = "https://i.postimg.cc/fLWrmY8b/2.png";
   const linkTagged = "https://i.postimg.cc/1tRjwDvt/3.png";
-  // ===========================================
 
   const displayedPosts = posts.filter(post => {
     if (activeTab === 'POSTS') return true;
@@ -308,10 +302,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
       
       <div style={{ position: 'relative', width: '340px', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
         
-        {/* === CONTAINER DOS BOTÕES FLUTUANTES (Top Right) === */}
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
-          
-          {/* BOTÃO DARK MODE */}
           <div 
             onClick={toggleDarkMode} 
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: theme.buttonBg, color: theme.text, width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
@@ -320,7 +311,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             {isDarkMode ? '☀️' : '🌙'}
           </div>
 
-          {/* BOTÃO REFRESH */}
           <div 
             onClick={handleRefresh} 
             style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: theme.buttonBg, color: theme.text, padding: '0 10px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', fontWeight: '500', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
@@ -328,7 +318,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
             {isUpdating ? '...' : 'Refresh'}
           </div>
-
         </div>
 
         <div style={{ opacity: isUpdating ? 0.6 : 1 }}>
@@ -363,7 +352,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
           </div>
         </div>
 
-        {/* === TELA CHEIA (PREVIEW) === */}
+        {/* === TELA CHEIA (PREVIEW) COM LEGENDA === */}
         {previewPost && (
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: theme.overlay, zIndex: 10, display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', padding: '16px' }}>
             
@@ -397,6 +386,27 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
                 </>
               )}
             </div>
+
+            {/* CAIXA DE LEGENDA (Aparece apenas se tiver texto escrito no Notion) */}
+            {previewPost.caption && (
+              <div style={{ 
+                marginTop: '12px', 
+                padding: '12px', 
+                backgroundColor: theme.postBg, 
+                borderRadius: '8px', 
+                border: `1px solid ${theme.border}`, 
+                color: theme.text, 
+                fontSize: '13px', 
+                lineHeight: '1.5', 
+                maxHeight: '120px', 
+                overflowY: 'auto', 
+                whiteSpace: 'pre-wrap' 
+              }}>
+                <strong style={{ marginRight: '6px' }}>Legenda:</strong>
+                {previewPost.caption}
+              </div>
+            )}
+
           </div>
         )}
       </div>
