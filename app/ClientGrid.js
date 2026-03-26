@@ -75,7 +75,8 @@ function ProfileHeader({ theme }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '120px' }}>
+      {/* Margem ajustada para 76px porque agora os botões são menores! */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', paddingRight: '76px' }}>
         <img 
           src={profile.avatar} 
           alt="Avatar" 
@@ -160,14 +161,7 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openPreview(post)} 
-      // === CORREÇÃO DO CANVA: Fundo transparente para o efeito Blur ===
-      style={{ 
-        position: 'relative', 
-        aspectRatio: '4/5', 
-        backgroundColor: currentMedia?.isCanva ? 'transparent' : theme.postBg, 
-        overflow: 'hidden', 
-        cursor: 'grab' 
-      }}
+      style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: currentMedia?.isCanva ? 'transparent' : theme.postBg, overflow: 'hidden', cursor: 'grab' }}
     >
       {currentMedia ? (
         currentMedia.isCanva ? (
@@ -224,7 +218,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); 
   };
 
-  // === TEMA ATUALIZADO ===
   const theme = {
     isDark: isDarkMode,
     bg: isDarkMode ? '#000000' : '#ffffff',
@@ -308,9 +301,9 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      {/* Container principal */}
       <div style={{ position: 'relative', width: '340px', boxSizing: 'border-box', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
         
+        {/* BOTÕES SUPERIORES: Agora os dois são quadradinhos perfeitos 28x28 */}
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
           <div 
             onClick={toggleDarkMode} 
@@ -322,10 +315,14 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
 
           <div 
             onClick={handleRefresh} 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: theme.buttonBg, color: theme.text, padding: '0 10px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', fontWeight: '500', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: theme.buttonBg, color: theme.text, width: '28px', height: '28px', borderRadius: '6px', border: `1px solid ${theme.border}`, cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+            title="Atualizar Feed"
           >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
-            {isUpdating ? '...' : 'Refresh'}
+            {isUpdating ? (
+              <span style={{ fontSize: '10px' }}>...</span>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.6499 2.35012C12.1963 0.896472 10.2036 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C11.5312 16 14.5273 13.7056 15.5802 10.4996L13.6823 9.87329C12.9231 12.1824 10.6657 13.8462 8 13.8462C4.77056 13.8462 2.15385 11.2294 2.15385 8C2.15385 4.77056 4.77056 2.15385 8 2.15385C9.61066 2.15385 11.0691 2.80556 12.1264 3.86283L9.23077 6.75845H16V0L13.6499 2.35012Z"/></svg>
+            )}
           </div>
         </div>
 
@@ -378,7 +375,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               </div>
             </div>
 
-            {/* Fundo mudou de preto para transparente! */}
             <div style={{ position: 'relative', flexGrow: 1, minHeight: 0, backgroundColor: 'transparent', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isCanva ? (
@@ -403,7 +399,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               )}
             </div>
 
-            {/* CAIXA DE LEGENDA */}
             {previewPost.caption && (
               <div style={{ 
                 marginTop: '12px', 
