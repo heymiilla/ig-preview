@@ -160,7 +160,14 @@ function PostItem({ post, index, handleDragStart, handleDragOver, handleDrop, op
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openPreview(post)} 
-      style={{ position: 'relative', aspectRatio: '4/5', backgroundColor: theme.postBg, overflow: 'hidden', cursor: 'grab' }}
+      // === CORREÇÃO DO CANVA: Fundo transparente para o efeito Blur ===
+      style={{ 
+        position: 'relative', 
+        aspectRatio: '4/5', 
+        backgroundColor: currentMedia?.isCanva ? 'transparent' : theme.postBg, 
+        overflow: 'hidden', 
+        cursor: 'grab' 
+      }}
     >
       {currentMedia ? (
         currentMedia.isCanva ? (
@@ -217,7 +224,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); 
   };
 
-  // === TEMA ATUALIZADO (Efeito Blur Transparente) ===
+  // === TEMA ATUALIZADO ===
   const theme = {
     isDark: isDarkMode,
     bg: isDarkMode ? '#000000' : '#ffffff',
@@ -228,7 +235,6 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     modalBg: isDarkMode ? '#1c1c1c' : '#ffffff',
     buttonBg: isDarkMode ? '#1c1c1c' : '#ffffff',
     link: isDarkMode ? '#e0f1ff' : '#00376b',
-    // Fundo semitransparente em vez de sólido
     overlay: isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.75)',
     invertFilter: isDarkMode ? 'invert(1)' : 'none' 
   };
@@ -302,7 +308,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      {/* Container principal travado com boxSizing para nada vazar da tela */}
+      {/* Container principal */}
       <div style={{ position: 'relative', width: '340px', boxSizing: 'border-box', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
         
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
@@ -355,17 +361,16 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
           </div>
         </div>
 
-        {/* === TELA CHEIA (PREVIEW) COM EFEITO BLUR E BOX-SIZING === */}
+        {/* === TELA CHEIA (PREVIEW) === */}
         {previewPost && (
           <div style={{ 
             position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
             backgroundColor: theme.overlay, 
-            backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', // Efeito de vidro!
+            backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
             zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '12px', 
             padding: '16px', boxSizing: 'border-box' 
           }}>
             
-            {/* O cabeçalho com o X agora tem flexShrink: 0 para nunca ser esmagado */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexShrink: 0 }}>
               <span style={{ fontSize: '14px', fontWeight: '600', color: theme.text }}>Pré-visualização</span>
               <div onClick={closePreview} style={{ cursor: 'pointer', background: theme.buttonBg, color: theme.text, borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
@@ -373,7 +378,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               </div>
             </div>
 
-            {/* Fundo mudou de preto para transparente para o efeito Blur funcionar! */}
+            {/* Fundo mudou de preto para transparente! */}
             <div style={{ position: 'relative', flexGrow: 1, minHeight: 0, backgroundColor: 'transparent', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isCanva ? (
