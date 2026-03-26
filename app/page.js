@@ -32,7 +32,7 @@ export default async function Page() {
   const data = await res.json();
   
   const mappedPosts = data.results.map((post) => {
-    // 1. Puxa as mídias do UPLOAD normal
+    // 1. Puxa as mídias
     const files = post.properties['Imagem']?.files || [];
     const mediaFiles = files.map((file) => {
       const url = file.type === 'external' ? file.external.url : file.file?.url;
@@ -41,14 +41,14 @@ export default async function Page() {
       return { url, isVideo };
     }).filter(m => m.url);
 
-    // 2. Puxa a mídia da coluna "Link direto"
+    // 2. Link direto
     const directLink = post.properties['Link direto']?.url;
     if (directLink) {
       const isVideo = directLink.match(/\.(mp4|mov|webm)$/i) !== null;
       mediaFiles.push({ url: directLink, isVideo }); 
     }
 
-    // 3. MÁGICA DO CANVA: Puxa o link e transforma em formato Embed
+    // 3. Canva Embed
     const canvaLink = post.properties['Canva Link']?.url;
     if (canvaLink) {
       let embedUrl = canvaLink;
@@ -58,13 +58,14 @@ export default async function Page() {
       mediaFiles.push({ url: embedUrl, isVideo: false, isCanva: true }); 
     }
 
+    // 4. NOVA MÁGICA: Puxa o texto da Legenda!
+    const caption = post.properties['Legenda']?.rich_text?.map(t => t.plain_text).join('') || '';
+
     const date = post.properties['Data de Publicação']?.date?.start;
-    return { id: post.id, mediaFiles, date };
+    return { id: post.id, mediaFiles, date, caption };
   });
 
-  // === A LINHA MÁGICA QUE REMOVE POSTS VAZIOS ===
   const posts = mappedPosts.filter(p => p.mediaFiles && p.mediaFiles.length > 0);
-  // ==============================================
 
   async function updateDatesInNotion(postsToUpdate) {
     'use server';
@@ -79,7 +80,7 @@ export default async function Page() {
         },
         body: JSON.stringify({
           properties: {
-            'Data de Publicação': { date: { start: newDate } }
+            'Data de Publicação': { date: { start: post.newDate } }
           }
         })
       });
