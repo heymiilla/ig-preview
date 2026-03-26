@@ -59,14 +59,14 @@ function ProfileHeader({ theme }) {
     <div style={{ marginBottom: '20px', position: 'relative' }}>
       
       {modal.isOpen && (
-        <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: theme.modalBg, padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: `1px solid ${theme.border}` }}>
+        <div style={{ position: 'absolute', top: '10%', left: '0', width: '100%', background: theme.modalBg, padding: '16px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 50, border: `1px solid ${theme.border}`, boxSizing: 'border-box' }}>
           <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: theme.text }}>Cole o link da nova imagem:</p>
           <input 
             type="text" 
             placeholder="https://i.postimg.cc/..."
             value={modal.tempUrl} 
             onChange={(e) => setModal({ ...modal, tempUrl: e.target.value })}
-            style={{ width: '100%', padding: '8px', marginBottom: '12px', borderRadius: '4px', border: `1px solid ${theme.border}`, background: theme.bg, color: theme.text, fontSize: '12px' }} 
+            style={{ width: '100%', padding: '8px', marginBottom: '12px', borderRadius: '4px', border: `1px solid ${theme.border}`, background: theme.bg, color: theme.text, fontSize: '12px', boxSizing: 'border-box' }} 
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <button onClick={() => setModal({ isOpen: false, field: null, index: null, tempUrl: '' })} style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: theme.postBg, color: theme.text, cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>Cancelar</button>
@@ -217,6 +217,7 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     localStorage.setItem('ig-widget-dark-mode', JSON.stringify(newMode)); 
   };
 
+  // === TEMA ATUALIZADO (Efeito Blur Transparente) ===
   const theme = {
     isDark: isDarkMode,
     bg: isDarkMode ? '#000000' : '#ffffff',
@@ -227,7 +228,8 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
     modalBg: isDarkMode ? '#1c1c1c' : '#ffffff',
     buttonBg: isDarkMode ? '#1c1c1c' : '#ffffff',
     link: isDarkMode ? '#e0f1ff' : '#00376b',
-    overlay: isDarkMode ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.96)',
+    // Fundo semitransparente em vez de sólido
+    overlay: isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.75)',
     invertFilter: isDarkMode ? 'invert(1)' : 'none' 
   };
 
@@ -300,7 +302,8 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
   return (
      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       
-      <div style={{ position: 'relative', width: '340px', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
+      {/* Container principal travado com boxSizing para nada vazar da tela */}
+      <div style={{ position: 'relative', width: '340px', boxSizing: 'border-box', background: theme.bg, borderRadius: '12px', boxShadow: 'rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px', padding: '20px', transition: 'background-color 0.3s' }}>
         
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
           <div 
@@ -352,18 +355,26 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
           </div>
         </div>
 
-        {/* === TELA CHEIA (PREVIEW) COM LEGENDA === */}
+        {/* === TELA CHEIA (PREVIEW) COM EFEITO BLUR E BOX-SIZING === */}
         {previewPost && (
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: theme.overlay, zIndex: 10, display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', padding: '16px' }}>
+          <div style={{ 
+            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+            backgroundColor: theme.overlay, 
+            backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', // Efeito de vidro!
+            zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '12px', 
+            padding: '16px', boxSizing: 'border-box' 
+          }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500', color: theme.text }}>Pré-visualização</span>
-              <div onClick={closePreview} style={{ cursor: 'pointer', background: theme.buttonBg, color: theme.text, borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+            {/* O cabeçalho com o X agora tem flexShrink: 0 para nunca ser esmagado */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexShrink: 0 }}>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: theme.text }}>Pré-visualização</span>
+              <div onClick={closePreview} style={{ cursor: 'pointer', background: theme.buttonBg, color: theme.text, borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                 ✕
               </div>
             </div>
 
-            <div style={{ position: 'relative', flexGrow: 1, backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Fundo mudou de preto para transparente para o efeito Blur funcionar! */}
+            <div style={{ position: 'relative', flexGrow: 1, minHeight: 0, backgroundColor: 'transparent', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               
               {previewPost.mediaFiles[previewImgIdx].isCanva ? (
                  <iframe src={previewPost.mediaFiles[previewImgIdx].url} style={{ width: '100%', height: '100%', border: 'none' }} />
@@ -387,12 +398,12 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
               )}
             </div>
 
-            {/* CAIXA DE LEGENDA (Aparece apenas se tiver texto escrito no Notion) */}
+            {/* CAIXA DE LEGENDA */}
             {previewPost.caption && (
               <div style={{ 
                 marginTop: '12px', 
                 padding: '12px', 
-                backgroundColor: theme.postBg, 
+                backgroundColor: theme.bg, 
                 borderRadius: '8px', 
                 border: `1px solid ${theme.border}`, 
                 color: theme.text, 
@@ -400,7 +411,8 @@ export default function ClientGrid({ initialPosts, updateDatesInNotion }) {
                 lineHeight: '1.5', 
                 maxHeight: '120px', 
                 overflowY: 'auto', 
-                whiteSpace: 'pre-wrap' 
+                whiteSpace: 'pre-wrap',
+                flexShrink: 0
               }}>
                 <strong style={{ marginRight: '6px' }}>Legenda:</strong>
                 {previewPost.caption}
